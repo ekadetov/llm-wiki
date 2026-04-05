@@ -1,0 +1,13 @@
+{
+  "name": "llm-wiki",
+  "owner": {
+    "name": "ekadetov"
+  },
+  "plugins": [
+    {
+      "name": "llm-wiki",
+      "source": "./",
+      "description": "LLM Wiki — persistent, compounding knowledge base inside Obsidian. Based on Karpathy's LLM Wiki pattern."
+    }
+  ]
+}
