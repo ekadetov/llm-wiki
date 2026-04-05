@@ -42,11 +42,13 @@ Walk up from `cwd` looking for a directory containing **both** `CLAUDE.md` and a
 Reference paths used throughout this skill:
 
 ```
-QMD="${CLAUDE_PLUGIN_DATA}/node_modules/.bin/qmd"
+QMD="env -u BUN_INSTALL ${CLAUDE_PLUGIN_DATA}/node_modules/.bin/qmd"
 MARP="${CLAUDE_PLUGIN_DATA}/node_modules/.bin/marp"
 ```
 
-**Check:** Test if `"${QMD}"` exists and is executable via Bash: `test -x "${CLAUDE_PLUGIN_DATA}/node_modules/.bin/qmd"`.
+**Check:** Test if `"${CLAUDE_PLUGIN_DATA}/node_modules/.bin/qmd"` exists and is executable via Bash: `test -x "${CLAUDE_PLUGIN_DATA}/node_modules/.bin/qmd"`.
+
+**Important:** Always invoke qmd via `env -u BUN_INSTALL` to force Node.js runtime. If `BUN_INSTALL` is set in the environment, qmd runs under Bun, which uses a SQLite build without extension loading support and cannot load sqlite-vec.
 
 - **If present:** use it for `query` and `embed` operations. ALWAYS use the full path — never bare `qmd`.
 - **If absent:** fall back to reading `wiki/index.md` manually and grepping wiki files.
