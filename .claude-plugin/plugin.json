@@ -1,0 +1,9 @@
+{
+  "name": "llm-wiki",
+  "version": "1.0.0",
+  "description": "LLM Wiki — persistent, compounding knowledge base inside Obsidian. Ingest sources, query synthesized knowledge, lint for health. Based on Karpathy's LLM Wiki pattern.",
+  "author": {
+    "name": "ekadetov"
+  },
+  "skills": ["./skills/"]
+}
