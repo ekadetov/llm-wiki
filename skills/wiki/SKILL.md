@@ -312,6 +312,24 @@ Delete a wiki and all its contents.
 
 ---
 
+## Error Handling
+
+Handle these failure modes gracefully:
+
+| Situation | Action |
+|-----------|--------|
+| **No active wiki found** | List available wikis in `~/ObsidianVault/03-Resources/*/wiki`. Suggest `wiki init <name>` if none exist. |
+| **qmd not available** | Fall back to `wiki/index.md` for search. Warn: "qmd unavailable — using index.md fallback." |
+| **Network error on URL ingest** | Retry once. If still failing, report the error and suggest saving content manually to `raw/articles/`. |
+| **Git commit fails** | Warn: "Git commit failed: <error>. Changes are saved but not committed." Continue with remaining steps. |
+| **Wiki already exists** (on init) | Abort with message referencing `wiki remove`. |
+| **Raw source too large** (>50KB) | Warn: "Large source detected. Entity extraction may be incomplete. Consider splitting." Proceed anyway. |
+| **log.md missing** | Create fresh log.md from template at topic root. Warn: "log.md was missing — created a new one." |
+| **No uncompiled sources** (on compile) | Report: "All sources are already compiled. Nothing to do." Stop. |
+| **qmd collection not found** | Warn and continue without search indexing. |
+
+---
+
 ## Templates
 
 Used by the `init` operation. Apply verbatim, replacing `<name>` with the wiki name.
