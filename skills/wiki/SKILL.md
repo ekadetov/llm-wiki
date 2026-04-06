@@ -466,9 +466,10 @@ One source typically touches 5-15 pages. This is normal.
 1. Read wiki/index.md first
 2. Open relevant pages
 3. Synthesize answer with [[wikilinks]] as citations
-4. If novel synthesis, offer to file to wiki/queries/ then promote
-5. Append to log.md
-6. Commit changes
+4. Always file answer to wiki/queries/ (mandatory, no prompt)
+5. Offer promotion to wiki/ as a concept page (y/n)
+6. Append to log.md (both query and optional promote events)
+7. Commit changes
 
 ## Lint Rules
 Scan all pages in wiki/ and report:
