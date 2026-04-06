@@ -61,41 +61,45 @@ Create a new wiki scaffold under the Obsidian vault.
 
 ### Steps
 
-1. Create directory structure:
+1. **Check if wiki already exists:**
+   If `~/ObsidianVault/03-Resources/<name>/` exists, abort with:
+   "Wiki '<name>' already exists at ~/ObsidianVault/03-Resources/<name>/. Use `wiki remove <name>` first, or choose a different name."
+
+2. Create directory structure:
    ```bash
    mkdir -p ~/ObsidianVault/03-Resources/<name>/raw/attachments
    mkdir -p ~/ObsidianVault/03-Resources/<name>/wiki/queries
    ```
 
-2. Write `~/ObsidianVault/03-Resources/<name>/CLAUDE.md` using the **CLAUDE.md template** below (fill in `<name>`).
+3. Write `~/ObsidianVault/03-Resources/<name>/CLAUDE.md` using the **CLAUDE.md template** below (fill in `<name>`).
 
-3. Write `~/ObsidianVault/03-Resources/<name>/wiki/index.md` using the **index.md template** below.
+4. Write `~/ObsidianVault/03-Resources/<name>/wiki/index.md` using the **index.md template** below.
 
-4. Write `~/ObsidianVault/03-Resources/<name>/wiki/log.md` using the **log.md template** below.
+5. Write `~/ObsidianVault/03-Resources/<name>/wiki/log.md` using the **log.md template** below.
 
-5. Write `~/ObsidianVault/03-Resources/<name>/.gitignore` using the **.gitignore template** below.
+6. Write `~/ObsidianVault/03-Resources/<name>/.gitignore` using the **.gitignore template** below.
 
-6. Write `~/ObsidianVault/03-Resources/<name>/qmd.yml` using the **qmd.yml template** below.
+7. Write `~/ObsidianVault/03-Resources/<name>/qmd.yml` using the **qmd.yml template** below.
 
-7. Commit to vault git:
+8. Commit to vault git:
    ```bash
    git -C ~/ObsidianVault add "03-Resources/<name>/" && git -C ~/ObsidianVault commit -m "init: <name> wiki"
    ```
 
-8. If qmd available:
+9. If qmd available:
    ```bash
    "${QMD}" collection add ~/ObsidianVault/03-Resources/<name>/wiki --name <name> && "${QMD}" embed --collection <name>
    ```
 
-9. Print Web Clipper setup instruction:
-   ```
-   Obsidian Web Clipper setup:
-   1. Install: https://obsidian.md/clipper
-   2. In clipper settings, set Destination folder to:
-      03-Resources/<name>/raw
-   3. Set filename template to: {{date:YYYY-MM-DD}}-{{title}}
-   4. After clipping, run: /llm-wiki:wiki ingest ~/ObsidianVault/03-Resources/<name>/raw/<clipped-file>.md
-   ```
+10. Print Web Clipper setup instruction:
+    ```
+    Obsidian Web Clipper setup:
+    1. Install: https://obsidian.md/clipper
+    2. In clipper settings, set Destination folder to:
+       03-Resources/<name>/raw
+    3. Set filename template to: {{date:YYYY-MM-DD}}-{{title}}
+    4. After clipping, run: /llm-wiki:wiki ingest ~/ObsidianVault/03-Resources/<name>/raw/<clipped-file>.md
+    ```
 
 ---
 
