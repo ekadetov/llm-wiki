@@ -4,7 +4,7 @@ description: >-
   LLM Wiki — persistent, compounding knowledge base inside Obsidian.
   Use when the user says "/llm-wiki:wiki", "wiki init", "wiki ingest",
   "wiki query", "wiki lint", or asks about managing a knowledge base wiki.
-argument-hint: init <name> | ingest <path|url> | query <question> | lint
+argument-hint: init <name> | ingest <path|url> | compile [<path>] | query <question> | lint | remove <name>
 ---
 
 # LLM Wiki
@@ -225,8 +225,34 @@ Audit wiki integrity and fix issues.
 
 6. **Commit:**
    ```bash
-   git -C ~/ObsidianVault commit -am "lint: YYYY-MM-DD"
+    git -C ~/ObsidianVault commit -am "lint: YYYY-MM-DD"
+    ```
+
+---
+
+## `remove <name>`
+
+Delete a wiki and all its contents.
+
+### Steps
+
+1. **Resolve wiki path:** `~/ObsidianVault/03-Resources/<name>/`
+
+2. **Verify it exists.** If not, abort: "Wiki '<name>' does not exist."
+
+3. **Confirm with user:** List the directory contents and ask "This will permanently delete the '<name>' wiki and all its contents. Proceed? (y/n)"
+
+4. **Remove qmd collection** (if qmd available):
+   ```bash
+   "${QMD}" collection remove <name>
    ```
+
+5. **Remove from git and filesystem:**
+   ```bash
+   git -C ~/ObsidianVault rm -rf "03-Resources/<name>/" && git -C ~/ObsidianVault commit -m "remove: <name> wiki"
+   ```
+
+6. **Confirm:** "Wiki '<name>' has been removed."
 
 ---
 
