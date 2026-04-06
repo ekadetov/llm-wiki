@@ -274,7 +274,11 @@ Audit wiki integrity and fix issues.
    | **Stale pages** | Flag pages with `status: stale` in frontmatter. |
    | **Index drift** | Compare `index.md` entries vs actual files. Add missing, remove dead. |
 
-5. **Write lint report** to `outputs/reports/YYYY-MM-DD-lint.md`:
+5. **Suggest growth opportunities:** Based on the wiki's current content and the gaps found in step 4, generate:
+   - 3-5 questions the wiki cannot yet answer well (candidates for `wiki query`)
+   - 2-3 topic areas or sources that would most strengthen the wiki
+
+6. **Write lint report** to `outputs/reports/YYYY-MM-DD-lint.md`:
    ```markdown
    # Lint Report — YYYY-MM-DD
 
@@ -284,16 +288,16 @@ Audit wiki integrity and fix issues.
    <full issue table from step 4>
 
    ## Next Steps
-   <growth suggestions from step 6>
+   <growth suggestions from step 5>
    ```
 
-6. **Append to `log.md`:**
+7. **Append to `log.md`:**
    ```
    ## [YYYY-MM-DD] lint | N issues found, M fixed
    <summary of issues>
    ```
 
-7. **Commit:**
+8. **Commit:**
    ```bash
     git -C ~/ObsidianVault commit -am "lint: YYYY-MM-DD"
     ```
