@@ -25,14 +25,16 @@ No lock-in. The files are yours.
 
 ### What this plugin does
 
-Four operations, invoked from a Claude Code session:
+Six operations, invoked from a Claude Code session:
 
 | Operation | What it does |
 |-----------|-------------|
 | `init <name>` | Scaffolds a new wiki with directory structure, schema, and git tracking |
-| `ingest <path\|url>` | Reads a source, creates entity pages, updates the index, commits |
+| `ingest <path\|url>` | Saves a source to raw/articles/. Does not create wiki pages. |
+| `compile [<path>]` | Reads raw sources, creates/updates wiki pages with entity extraction |
 | `query <question>` | Searches the wiki, synthesizes an answer with wikilink citations |
 | `lint` | Audits for dead links, orphans, missing sections, index drift |
+| `remove <name>` | Deletes a wiki and all its contents |
 
 ---
 
@@ -45,13 +47,16 @@ Every wiki lives at `~/ObsidianVault/03-Resources/<name>/`:
 ```
 <name>/
 ├── raw/                  ← immutable source drops (never edited by LLM)
+│   ├── articles/         ← text source documents
 │   └── attachments/      ← images and binary files
 ├── wiki/                 ← LLM-owned pages
 │   ├── index.md          ← catalog, read first before any other page
-│   ├── log.md            ← append-only operation log
 │   ├── queries/          ← filed query answers
 │   └── <concept>.md      ← entity and concept pages
+├── outputs/
+│   └── reports/          ← dated lint reports
 ├── CLAUDE.md             ← wiki schema and conventions
+├── log.md                ← append-only operation log
 ├── .gitignore
 └── qmd.yml               ← search collection config
 ```
@@ -192,10 +197,10 @@ Work through these steps in order. Each step builds on the previous one.
 
 **What happens:**
 
-1. Creates `~/ObsidianVault/03-Resources/test-wiki/` with `raw/attachments/` and `wiki/queries/`
+1. Creates `~/ObsidianVault/03-Resources/test-wiki/` with `raw/articles/`, `raw/attachments/`, `wiki/queries/`, and `outputs/reports/`
 2. Writes `CLAUDE.md` with the full schema
 3. Writes `wiki/index.md` with an empty catalog template
-4. Writes `wiki/log.md` with an empty log template
+4. Writes `log.md` with an empty log template
 5. Writes `.gitignore` and `qmd.yml`
 6. Commits everything: `init: test-wiki wiki`
 7. If qmd is available, creates a search collection and embeds the (empty) wiki
@@ -224,7 +229,7 @@ git -C ~/ObsidianVault log --oneline -1
 First, create a test source:
 
 ```bash
-cat > ~/ObsidianVault/03-Resources/test-wiki/raw/2026-04-05-test-article.md << 'EOF'
+cat > ~/ObsidianVault/03-Resources/test-wiki/raw/articles/2026-04-05-test-article.md << 'EOF'
 # The History of Markdown
 
 John Gruber created Markdown in 2004 with contributions from Aaron Swartz.
@@ -240,28 +245,56 @@ cd ~/ObsidianVault/03-Resources/test-wiki
 ```
 
 ```
-/llm-wiki:wiki ingest raw/2026-04-05-test-article.md
+/llm-wiki:wiki ingest raw/articles/2026-04-05-test-article.md
 ```
 
 **What happens:**
 
 1. Detects active wiki from cwd, reads `CLAUDE.md`
 2. Reads the source file, classifies it as `article`
-3. Creates `wiki/history-of-markdown.md` (source-summary page)
-4. Creates `wiki/john-gruber.md` (person page)
-5. Creates `wiki/aaron-swartz.md` (person page)
-6. May create concept pages for Markdown, HTML, GitHub, etc.
-7. Runs backlink audit: adds `[[wikilinks]]` wherever page titles are mentioned
-8. Updates `wiki/index.md` with new entries
-9. Appends to `wiki/log.md`
-10. Commits: `ingest: The History of Markdown`
+3. Saves to `raw/articles/` with frontmatter
+4. Appends to `log.md`, commits
+5. Prints: "Source saved. Run wiki compile to integrate."
+
+**Verify:**
+
+```bash
+ls raw/articles/
+cat log.md
+git -C ~/ObsidianVault log --oneline -3
+```
+
+**Expected:**
+
+- `raw/articles/` contains the saved source file
+- `log.md` has an ingest entry with date
+- Git log shows the ingest commit
+
+---
+
+### Step 2b: Compile into wiki pages
+
+```
+/llm-wiki:wiki compile
+```
+
+**What happens:**
+
+1. Identifies uncompiled sources in `raw/articles/`
+2. Creates `wiki/history-of-markdown.md` (source-summary page)
+3. Creates `wiki/john-gruber.md` (person page)
+4. Creates `wiki/aaron-swartz.md` (person page)
+5. May create concept pages for Markdown, HTML, GitHub, etc.
+6. Runs backlink audit
+7. Updates `wiki/index.md`
+8. Appends to `log.md`, commits
 
 **Verify:**
 
 ```bash
 ls wiki/
 cat wiki/index.md
-cat wiki/log.md
+cat log.md
 git -C ~/ObsidianVault log --oneline -3
 ```
 
@@ -269,8 +302,8 @@ git -C ~/ObsidianVault log --oneline -3
 
 - `wiki/` contains multiple new `.md` files
 - `index.md` has entries under a domain heading
-- `log.md` has an ingest entry with date and page count
-- Git log shows the ingest commit
+- `log.md` has a compile entry with date and page count
+- Git log shows the compile commit
 
 ---
 
@@ -282,9 +315,9 @@ git -C ~/ObsidianVault log --oneline -3
 
 **What happens:**
 
-The plugin uses WebFetch to retrieve the page content, saves it to `raw/` as `YYYY-MM-DD-markdown.md`, then processes it exactly like a local file. Existing pages (john-gruber, aaron-swartz) get updated with new information rather than overwritten.
+The plugin uses WebFetch to retrieve the page content, saves it to `raw/articles/` as `YYYY-MM-DD-markdown.md` with frontmatter, appends to `log.md`, and commits. It does not create wiki pages — use `compile` for that.
 
-This is the primary workflow for building up a wiki from web research: clip or fetch articles, ingest them, let the wiki compound.
+This is the primary workflow for building up a wiki from web research: clip or fetch articles, ingest them, then compile to create wiki pages.
 
 ---
 
@@ -300,8 +333,9 @@ This is the primary workflow for building up a wiki from web research: clip or f
 2. If qmd is available, runs a hybrid search query. Otherwise reads `index.md` and identifies relevant pages
 3. Opens the relevant pages, follows one level of wikilinks for additional context
 4. Synthesizes an answer in prose with `[[wikilinks]]` as citations
-5. Asks: "File this answer back into the wiki? (y/n)"
-6. Appends to `wiki/log.md`, commits
+5. Answer synthesized AND automatically filed to `wiki/queries/`
+6. Asks: "Promote this to a concept page? (y/n)"
+7. Appends to `log.md`, commits
 
 **Example answer format:**
 
@@ -310,13 +344,13 @@ This is the primary workflow for building up a wiki from web research: clip or f
 **Verify:**
 
 ```bash
-cat wiki/log.md    # should have a query entry
+cat log.md    # should have a query entry
 git -C ~/ObsidianVault log --oneline -3
 ```
 
 **Filing answers back:**
 
-When the plugin asks "File this answer back?", say yes. It saves to `wiki/queries/<slug>.md`. Then it offers to promote the answer to `wiki/<slug>.md` as a full concept page. Promotion is how the wiki grows from queries, not just ingests.
+Answers are automatically filed to `wiki/queries/<slug>.md`. Then the plugin offers to promote the answer to `wiki/<slug>.md` as a full concept page. Promotion is how the wiki grows from queries, not just ingests.
 
 ---
 
@@ -337,12 +371,14 @@ When the plugin asks "File this answer back?", say yes. It saves to `wiki/querie
    - **Missing sections**: adds empty `## Counter-Arguments and Gaps` sections
    - **Contradictions**: lists pages with `[!WARNING]` markers
    - **Index drift**: adds missing entries, removes dead ones
-5. Appends lint report to `wiki/log.md`, commits
+5. Saves lint report to `outputs/reports/YYYY-MM-DD-lint.md`
+6. Appends to `log.md`, commits
 
 **Verify:**
 
 ```bash
-cat wiki/log.md    # should have a lint entry with issue count
+cat log.md    # should have a lint entry with issue count
+ls outputs/reports/
 git -C ~/ObsidianVault log --oneline -3
 ```
 
@@ -467,9 +503,8 @@ Use promotion when a query synthesizes something genuinely new that isn't captur
 
 After testing, remove the test wiki:
 
-```bash
-rm -rf ~/ObsidianVault/03-Resources/test-wiki
-~/.claude/plugins/data/llm-wiki/node_modules/.bin/qmd collection remove test-wiki 2>/dev/null || true
+```
+/llm-wiki:wiki remove test-wiki
 ```
 
 Your real wikis are unaffected. The plugin itself stays installed.

@@ -33,7 +33,16 @@ Creates `~/ObsidianVault/03-Resources/my-topic/` with the full wiki structure: `
 /llm-wiki:wiki ingest https://example.com/interesting-article
 ```
 
-Reads the source, creates/updates wiki pages (source summary, concept pages, person pages), updates the index, and commits.
+Saves the source to `raw/articles/`. Does not create wiki pages — use `compile` for that.
+
+### Compile raw sources into wiki
+
+```
+/llm-wiki:wiki compile
+/llm-wiki:wiki compile ~/ObsidianVault/03-Resources/my-topic/raw/articles/2026-04-05-article.md
+```
+
+Reads uncompiled raw sources, creates/updates wiki pages (source summary, concept pages, person pages), updates the index, and commits.
 
 ### Query the wiki
 
@@ -51,18 +60,29 @@ Searches the wiki (via qmd if available, otherwise index.md), reads relevant pag
 
 Checks for dead links, orphan pages, missing sections, contradictions, stale pages, and index drift. Auto-fixes what it can.
 
+### Remove a wiki
+
+```
+/llm-wiki:wiki remove my-topic
+```
+
+Deletes the wiki directory, removes the qmd collection, and commits the deletion.
+
 ## Wiki Structure
 
 ```
 ~/ObsidianVault/03-Resources/<wiki-name>/
 ├── raw/                  ← immutable source drops (never edited by LLM)
+│   ├── articles/         ← text source documents
 │   └── attachments/      ← images
 ├── wiki/                 ← LLM-owned pages
 │   ├── index.md          ← catalog (read first)
-│   ├── log.md            ← append-only operation log
 │   ├── queries/          ← filed query answers
 │   └── <concept>.md      ← entity/concept pages
+├── outputs/
+│   └── reports/          ← dated lint reports
 ├── CLAUDE.md             ← wiki schema and conventions
+├── log.md                ← append-only operation log
 ├── .gitignore
 └── qmd.yml               ← qmd collection config
 ```
