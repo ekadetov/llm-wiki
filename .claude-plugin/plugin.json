@@ -1,7 +1,7 @@
 {
   "name": "llm-wiki",
-  "version": "1.0.0",
-  "description": "LLM Wiki — persistent, compounding knowledge base inside Obsidian. Ingest sources, query synthesized knowledge, lint for health. Based on Karpathy's LLM Wiki pattern.",
+  "version": "2.0.0",
+  "description": "LLM Wiki — persistent, compounding knowledge base inside Obsidian. Ingest, compile, query, lint, and remove knowledge base wikis. Based on Karpathy's LLM Wiki pattern.",
   "author": {
     "name": "ekadetov"
   }
