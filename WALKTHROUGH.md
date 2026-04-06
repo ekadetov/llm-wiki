@@ -168,7 +168,7 @@ In a Claude Code session, `/llm-wiki:wiki` should appear in the skill list. Try:
 /llm-wiki:wiki
 ```
 
-You should see the argument hint: `init <name> | ingest <path|url> | query <question> | lint`.
+You should see the argument hint: `init <name> | ingest <path|url> | compile [<path>] | query <question> | lint | remove <name>`.
 
 ### Dependencies
 
@@ -411,7 +411,7 @@ This lists all wiki pages with their date and type, sorted newest first. Change 
 
 Install the [Obsidian Web Clipper](https://obsidian.md/clipper) browser extension. In its settings:
 
-- **Destination folder:** `03-Resources/<wiki-name>/raw`
+- **Destination folder:** `03-Resources/<wiki-name>/raw/articles`
 - **Filename template:** `{{date:YYYY-MM-DD}}-{{title}}`
 
 After clipping an article, run:
@@ -518,7 +518,7 @@ Your real wikis are unaffected. The plugin itself stays installed.
 | `/llm-wiki:wiki` not found | Plugin not installed | `/plugin install llm-wiki@llm-wiki` |
 | qmd not found | Deps not installed | Check `~/.claude/plugins/data/llm-wiki/node_modules/.bin/qmd`; start a new session to trigger the hook |
 | Git commit fails | No git user configured | `git config --global user.name "Name"` and `git config --global user.email "email"` |
-| Init fails "directory exists" | Previous test not cleaned up | Remove the directory first: `rm -rf ~/ObsidianVault/03-Resources/<name>` |
+| Init fails "directory exists" | Previous test not cleaned up | Run `wiki remove <name>` to delete it cleanly |
 | Hook doesn't run on session start | hooks.json malformed | Reinstall the plugin |
 | Ingest creates no entity pages | Source too short or unstructured | Add more content to the source file |
 | Query returns vague answer | Wiki too small or qmd not indexed | Ingest more sources; run `qmd embed --collection <name>` |
