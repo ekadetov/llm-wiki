@@ -406,6 +406,21 @@ One-paragraph summary.
 To export as a Marp slide deck, add `marp: true` to frontmatter and run:
   "${MARP}" wiki/<filename>.md -o output.html
 
+### query-output.md
+---
+date: YYYY-MM-DD
+tags: [domain]
+type: query-output
+question: "<original question>"
+status: filed
+---
+# <Question as title>
+<synthesized answer>
+
+## Sources
+- [[page-1]]
+- [[page-2]]
+
 ## Naming Conventions
 - All filenames: lowercase-kebab-case.md
 - Wikilinks: [[filename-without-extension]]
