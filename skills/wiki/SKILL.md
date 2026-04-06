@@ -66,10 +66,12 @@ Create a new wiki scaffold under the Obsidian vault.
    "Wiki '<name>' already exists at ~/ObsidianVault/03-Resources/<name>/. Use `wiki remove <name>` first, or choose a different name."
 
 2. Create directory structure:
-   ```bash
-   mkdir -p ~/ObsidianVault/03-Resources/<name>/raw/attachments
-   mkdir -p ~/ObsidianVault/03-Resources/<name>/wiki/queries
-   ```
+    ```bash
+    mkdir -p ~/ObsidianVault/03-Resources/<name>/raw/articles
+    mkdir -p ~/ObsidianVault/03-Resources/<name>/raw/attachments
+    mkdir -p ~/ObsidianVault/03-Resources/<name>/wiki/queries
+    mkdir -p ~/ObsidianVault/03-Resources/<name>/outputs/reports
+    ```
 
 3. Write `~/ObsidianVault/03-Resources/<name>/CLAUDE.md` using the **CLAUDE.md template** below (fill in `<name>`).
 
@@ -92,14 +94,14 @@ Create a new wiki scaffold under the Obsidian vault.
    ```
 
 10. Print Web Clipper setup instruction:
-    ```
-    Obsidian Web Clipper setup:
-    1. Install: https://obsidian.md/clipper
-    2. In clipper settings, set Destination folder to:
-       03-Resources/<name>/raw
-    3. Set filename template to: {{date:YYYY-MM-DD}}-{{title}}
-    4. After clipping, run: /llm-wiki:wiki ingest ~/ObsidianVault/03-Resources/<name>/raw/<clipped-file>.md
-    ```
+     ```
+     Obsidian Web Clipper setup:
+     1. Install: https://obsidian.md/clipper
+     2. In clipper settings, set Destination folder to:
+        03-Resources/<name>/raw/articles
+     3. Set filename template to: {{date:YYYY-MM-DD}}-{{title}}
+     4. After clipping, run: /llm-wiki:wiki ingest ~/ObsidianVault/03-Resources/<name>/raw/articles/<clipped-file>.md
+     ```
 
 ---
 
@@ -112,8 +114,9 @@ Ingest a source document into the wiki, creating/updating entity pages and cross
 1. **Detect active wiki** (see Active Wiki Detection). Read `CLAUDE.md` for schema and templates.
 
 2. **Acquire source:**
-   - If input is a **URL**: use the WebFetch tool to retrieve content. Save to `raw/` as `YYYY-MM-DD-<slug>.md`.
-   - If input is a **file path**: read the file directly.
+    - If input is a **URL**: use the WebFetch tool to retrieve content. Save to `raw/articles/` as `YYYY-MM-DD-<slug>.md`.
+    - If input is a **file path**: read the file directly.
+    - If the source file is in `raw/` directly (not in a subdirectory), read it from there. Sources saved before the `raw/articles/` convention are still valid.
 
 3. **Classify** the source as one of: `article` | `paper` | `transcript` | `conversation` | `image-set`.
 
@@ -270,12 +273,14 @@ Used by the `init` operation. Apply verbatim, replacing `<name>` with the wiki n
 # <name> Wiki Schema
 
 ## Directory Layout
-- raw/           -- immutable source drops. Never edit files here.
-- raw/attachments/ -- images and binary attachments.
-- wiki/          -- LLM-owned pages. You have full write access here.
-- wiki/index.md  -- catalog. Read this FIRST before opening any other page.
-- wiki/queries/  -- filed query answers. Promote to wiki/ when durable.
-- log.md         -- append-only operation log. Never edit existing entries.
+- raw/              -- immutable source drops. Never edit files here.
+- raw/articles/     -- text source documents (articles, papers, transcripts).
+- raw/attachments/  -- images and binary attachments.
+- wiki/             -- LLM-owned pages. You have full write access here.
+- wiki/index.md     -- catalog. Read this FIRST before opening any other page.
+- wiki/queries/     -- filed query answers. Promote to wiki/ when durable.
+- outputs/reports/  -- dated lint reports and other artifacts.
+- log.md            -- append-only operation log. Never edit existing entries.
 
 ## Entity Types and Templates
 
