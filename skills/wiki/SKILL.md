@@ -225,17 +225,22 @@ Answer a question using wiki knowledge, with citations.
    - **If question contains "table":** markdown table with wikilink citations in cells.
    - **If question contains "slides":** Marp markdown with `marp: true` frontmatter. Render with: `"${MARP}" <file> -o output.html`
 
-5. **Ask:** "File this answer back into the wiki? (y/n)"
-   - If yes: save to `wiki/queries/<slug>.md` first.
-   - Then offer: "Promote to `wiki/<slug>.md` as a concept page? (y/n)"
+5. **File the answer** to `wiki/queries/<slug>.md` using the `query-output` frontmatter schema. Always file — no prompt.
 
-6. **Append to `log.md`:**
+6. **Ask:** "Promote this answer to `wiki/<slug>.md` as a concept page? (y/n)"
+   - If yes: move the file from `wiki/queries/` to `wiki/`, update frontmatter `status` from `filed` to `promoted`, and append to `log.md`:
+     ```
+     ## [YYYY-MM-DD] promote | <slug>
+     Promoted query answer to concept page.
+     ```
+
+7. **Append to `log.md`:**
    ```
    ## [YYYY-MM-DD] query | <question-slug>
-   Answered question. Referenced N pages.
+   Answered question. Referenced N pages. Filed to queries/<slug>.md.
    ```
 
-7. **Commit:**
+8. **Commit:**
    ```bash
    git -C ~/ObsidianVault add "03-Resources/<wiki-name>/" && git -C ~/ObsidianVault commit -m "query: <slug>"
    ```
