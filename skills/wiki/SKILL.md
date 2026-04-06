@@ -107,54 +107,98 @@ Create a new wiki scaffold under the Obsidian vault.
 
 ## `ingest <path|url>`
 
-Ingest a source document into the wiki, creating/updating entity pages and cross-references.
+Acquire a source and save it to the raw library. Does NOT create wiki pages — use `compile` for that.
 
 ### Steps
 
-1. **Detect active wiki** (see Active Wiki Detection). Read `CLAUDE.md` for schema and templates.
+1. **Detect active wiki** (see Active Wiki Detection). Read `CLAUDE.md` for schema.
 
 2. **Acquire source:**
-    - If input is a **URL**: use the WebFetch tool to retrieve content. Save to `raw/articles/` as `YYYY-MM-DD-<slug>.md`.
-    - If input is a **file path**: read the file directly.
-    - If the source file is in `raw/` directly (not in a subdirectory), read it from there. Sources saved before the `raw/articles/` convention are still valid.
+   - If input is a **URL**: use the WebFetch tool to retrieve content.
+   - If input is a **file path**: read the file directly.
+   - If the source file is in `raw/` directly (not in a subdirectory), read it from there. Sources saved before the `raw/articles/` convention are still valid.
 
 3. **Classify** the source as one of: `article` | `paper` | `transcript` | `conversation` | `image-set`.
 
-4. **Write or update source-summary page** in `wiki/` using the `source-summary` template from `CLAUDE.md`. Filename: `<slug>.md`.
-
-5. **Entity extraction:** For each mentioned entity (person, concept, event):
-   - Check if a page already exists in `wiki/`.
-   - If yes → update it with new information, preserving existing content.
-   - If no → create a new page using the appropriate template (`concept.md` or `person.md`) from `CLAUDE.md`.
-   - Add `[[wikilinks]]` to related pages in both directions.
-
-6. **Backlink audit** (CRITICAL — do not skip):
-   For every newly created or updated page, run:
-   ```bash
-   grep -rln "<new page title>" wiki/
+4. **Save to raw library:** Write to `raw/articles/YYYY-MM-DD-<slug>.md` with frontmatter:
+   ```yaml
+   ---
+   date: YYYY-MM-DD
+   source-type: <classification>
+   source-url: <original URL or file path>
+   title: <extracted or inferred title>
+   compiled: false
+   ---
    ```
-   For each file that mentions the new page title but does NOT already contain `[[new-page-name]]`:
-   - Open the file.
-   - Add a `[[wikilink]]` at the first mention of the term.
-   This ensures the wiki graph stays densely connected.
+   If input was a file path already in `raw/`, skip this step (source is already saved).
 
-7. **Update `wiki/index.md`** with new/updated entries under the appropriate domain heading.
-
-8. **Append to `log.md`:**
+5. **Append to `log.md`:**
    ```
    ## [YYYY-MM-DD] ingest | <title>
-   Ingested <source-type> from <source>. Created/updated N pages.
+   Saved <source-type> from <source> to raw/articles/.
    ```
 
-9. **Commit:**
+6. **Commit:**
    ```bash
    git -C ~/ObsidianVault add "03-Resources/<wiki-name>/" && git -C ~/ObsidianVault commit -m "ingest: <title>"
    ```
 
-10. **If qmd available:**
-    ```bash
-    "${QMD}" embed --collection <name>
-    ```
+7. **Print:** "Source saved to raw/articles/<filename>. Run `wiki compile` to integrate into the wiki."
+
+---
+
+## `compile [<path>]`
+
+Read raw sources and create/update wiki pages with entity extraction and cross-references.
+
+- If `<path>` is given: compile that specific raw source.
+- If no argument: scan `raw/articles/` for sources without a corresponding source-summary page in `wiki/`, and compile those.
+
+### Steps
+
+1. **Detect active wiki.** Read `CLAUDE.md` for schema and templates.
+
+2. **Identify sources to compile:**
+   - If path argument given: use that file.
+   - Otherwise: list files in `raw/articles/`. For each, check if a corresponding source-summary page exists in `wiki/` (match by slug or title). Compile any source without a matching summary.
+   - If nothing to compile: "All sources are already compiled. Nothing to do." Stop.
+
+3. **For each source to compile:**
+
+   a. Read the raw source content.
+
+   b. **Write or update source-summary page** in `wiki/` using the `source-summary` template from `CLAUDE.md`. Filename: `<slug>.md`.
+
+   c. **Entity extraction:** For each mentioned entity (person, concept, event):
+      - Check if a page already exists in `wiki/`.
+      - If yes → update with new information, preserving existing content.
+      - If no → create using the appropriate template (`concept.md` or `person.md`).
+      - Add `[[wikilinks]]` to related pages in both directions.
+
+   d. **Backlink audit** (CRITICAL — do not skip):
+      ```bash
+      grep -rln "<new page title>" wiki/
+      ```
+      For each file that mentions the new page title but does NOT contain `[[new-page-name]]`:
+      add a `[[wikilink]]` at the first mention.
+
+4. **Update `wiki/index.md`** with new/updated entries under the appropriate domain heading.
+
+5. **Append to `log.md`:**
+   ```
+   ## [YYYY-MM-DD] compile | <N> sources → <M> pages
+   Compiled <source-titles>. Created/updated M pages.
+   ```
+
+6. **Commit:**
+   ```bash
+   git -C ~/ObsidianVault add "03-Resources/<wiki-name>/" && git -C ~/ObsidianVault commit -m "compile: <summary>"
+   ```
+
+7. **If qmd available:**
+   ```bash
+   "${QMD}" embed --collection <name>
+   ```
 
 ---
 
@@ -364,13 +408,20 @@ Keep entries under 80 chars. Update after every ingest.
 - Flag contradictions inline: > [!WARNING] Contradiction with [[other-page]]
 
 ## Ingest Rules
-1. Read and classify the source
-2. Write or update a source-summary page in wiki/
-3. For each entity: create or update its concept/person page
-4. Backlink audit: grep existing pages for mentions of new titles
-5. Update wiki/index.md
-6. Append to log.md
-7. Commit changes
+1. Acquire the source (URL or file)
+2. Classify the source type
+3. Save to raw/articles/ with frontmatter (compiled: false)
+4. Append to log.md
+5. Commit
+Ingest does NOT create wiki pages. Use compile for that.
+
+## Compile Rules
+1. Identify uncompiled raw sources (no matching source-summary in wiki/)
+2. For each source: write source-summary, extract entities, create/update pages
+3. Backlink audit: grep existing pages for mentions of new titles
+4. Update wiki/index.md
+5. Append to log.md
+6. Commit
 One source typically touches 5-15 pages. This is normal.
 
 ## Query Rules
