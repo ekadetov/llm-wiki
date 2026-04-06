@@ -268,6 +268,7 @@ Audit wiki integrity and fix issues.
    |-------|--------|
    | **Orphan pages** (no inbound links) | List them. Suggest adding links from related pages. |
    | **Dead links** (`[[wikilinks]]` to nonexistent files) | Create stub pages with appropriate template. |
+   | **Unlinked concept mentions** | Scan pages for proper nouns and technical terms appearing in prose without `[[wikilinks]]`. If a corresponding page exists, add the wikilink at first mention. If no page exists, flag as a candidate for a new page. |
    | **Contradictions** | Scan for `[!WARNING]` markers. List them. |
    | **Missing "Counter-Arguments and Gaps" sections** | Add empty `## Counter-Arguments and Gaps` section. |
    | **Stale pages** | Flag pages with `status: stale` in frontmatter. |
