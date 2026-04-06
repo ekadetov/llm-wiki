@@ -75,7 +75,7 @@ Create a new wiki scaffold under the Obsidian vault.
 
 4. Write `~/ObsidianVault/03-Resources/<name>/wiki/index.md` using the **index.md template** below.
 
-5. Write `~/ObsidianVault/03-Resources/<name>/wiki/log.md` using the **log.md template** below.
+5. Write `~/ObsidianVault/03-Resources/<name>/log.md` using the **log.md template** below.
 
 6. Write `~/ObsidianVault/03-Resources/<name>/.gitignore` using the **.gitignore template** below.
 
@@ -137,7 +137,7 @@ Ingest a source document into the wiki, creating/updating entity pages and cross
 
 7. **Update `wiki/index.md`** with new/updated entries under the appropriate domain heading.
 
-8. **Append to `wiki/log.md`:**
+8. **Append to `log.md`:**
    ```
    ## [YYYY-MM-DD] ingest | <title>
    Ingested <source-type> from <source>. Created/updated N pages.
@@ -182,7 +182,7 @@ Answer a question using wiki knowledge, with citations.
    - If yes: save to `wiki/queries/<slug>.md` first.
    - Then offer: "Promote to `wiki/<slug>.md` as a concept page? (y/n)"
 
-6. **Append to `wiki/log.md`:**
+6. **Append to `log.md`:**
    ```
    ## [YYYY-MM-DD] query | <question-slug>
    Answered question. Referenced N pages.
@@ -221,7 +221,7 @@ Audit wiki integrity and fix issues.
    | **Stale pages** | Flag pages with `status: stale` in frontmatter. |
    | **Index drift** | Compare `index.md` entries vs actual files. Add missing, remove dead. |
 
-5. **Append lint report to `wiki/log.md`:**
+5. **Append lint report to `log.md`:**
    ```
    ## [YYYY-MM-DD] lint | N issues found, M fixed
    <summary of issues>
@@ -274,8 +274,8 @@ Used by the `init` operation. Apply verbatim, replacing `<name>` with the wiki n
 - raw/attachments/ -- images and binary attachments.
 - wiki/          -- LLM-owned pages. You have full write access here.
 - wiki/index.md  -- catalog. Read this FIRST before opening any other page.
-- wiki/log.md    -- append-only log. Never edit existing entries.
 - wiki/queries/  -- filed query answers. Promote to wiki/ when durable.
+- log.md         -- append-only operation log. Never edit existing entries.
 
 ## Entity Types and Templates
 
@@ -340,11 +340,11 @@ To export as a Marp slide deck, add `marp: true` to frontmatter and run:
 - Never use standard markdown links for internal links
 
 ## Log Format
-Append to wiki/log.md after every operation. Format:
+Append to log.md after every operation. Format:
   ## [YYYY-MM-DD] <operation> | <title>
   <one-line description>
 
-Operations: ingest | query | lint
+Operations: ingest | compile | query | lint | promote | remove
 
 ## Index Format
 wiki/index.md is a human- and LLM-readable catalog. Format:
@@ -364,7 +364,7 @@ Keep entries under 80 chars. Update after every ingest.
 3. For each entity: create or update its concept/person page
 4. Backlink audit: grep existing pages for mentions of new titles
 5. Update wiki/index.md
-6. Append to wiki/log.md
+6. Append to log.md
 7. Commit changes
 One source typically touches 5-15 pages. This is normal.
 
@@ -373,7 +373,7 @@ One source typically touches 5-15 pages. This is normal.
 2. Open relevant pages
 3. Synthesize answer with [[wikilinks]] as citations
 4. If novel synthesis, offer to file to wiki/queries/ then promote
-5. Append to wiki/log.md
+5. Append to log.md
 6. Commit changes
 
 ## Lint Rules
@@ -417,7 +417,7 @@ Last updated: YYYY-MM-DD
 -->
 ```
 
-### wiki/log.md
+### log.md
 
 ```markdown
 # <name> Wiki Log
